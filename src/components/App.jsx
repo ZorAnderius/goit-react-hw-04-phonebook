@@ -13,7 +13,10 @@ import { Notification } from './Notification/Notification';
 const STORAGE_KEY = 'contacts';
 
 export const App = () => {
-  const [contact, setContact] = useState([]);
+  const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  const initalArr = storageData && storageData.length ? storageData : contacts;
+
+  const [contact, setContact] = useState([...initalArr]);
   const [filterQuery, setFilterQuery] = useState('');
 
   const filterContacts = e => {
@@ -21,8 +24,8 @@ export const App = () => {
   };
 
   const addContactToList = contact => {
-    setContact(state => {
-      const isInclude = state.find(
+    setContact(prev => {
+      const isInclude = prev.find(
         ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
       );
 
@@ -33,13 +36,13 @@ export const App = () => {
         return;
       }
 
-      return [...state, contact];
+      return [...prev, contact];
     });
   };
 
   const onRemoveContact = contactID => {
-    setContact(state => {
-      const newContactList = state.filter(contact => contact.id !== contactID);
+    setContact(prev => {
+      const newContactList = prev.filter(contact => contact.id !== contactID);
       return [...newContactList];
     });
   };
@@ -52,15 +55,7 @@ export const App = () => {
   };
 
   useEffect(() => {
-    const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    const initalArr =
-      storageData && storageData.length ? storageData : contacts;
-
-    setContact([...initalArr]);
-  }, []);
-
-  useEffect(() => {
-    if (contact && contact.length) {
+    if (contact) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(contact));
     }
   }, [contact]);
