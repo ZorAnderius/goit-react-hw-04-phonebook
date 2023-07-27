@@ -7,16 +7,17 @@ import { ContactList } from './ContactList/ContactList';
 
 import appCSS from './App.module.css';
 
-import contacts from './contacts_data.json';
+import contactsData from './contacts_data.json';
 import { Notification } from './Notification/Notification';
 
 const STORAGE_KEY = 'contacts';
 
 export const App = () => {
   const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  const initalArr = storageData && storageData.length ? storageData : contacts;
+  const initalArr =
+    storageData && storageData.length ? storageData : contactsData;
 
-  const [contact, setContact] = useState([...initalArr]);
+  const [contacts, setContact] = useState([...initalArr]);
   const [filterQuery, setFilterQuery] = useState('');
 
   const filterContacts = e => {
@@ -33,7 +34,7 @@ export const App = () => {
         alert(
           `Sorry, but the contact ${contact.name} is already in your phone book `
         );
-        return;
+        return [...prev];
       }
 
       return [...prev, contact];
@@ -49,18 +50,17 @@ export const App = () => {
 
   const checkSameContact = () => {
     const normalaizedFilter = filterQuery.toLowerCase();
-    return contact.filter(contact =>
+    return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalaizedFilter)
     );
   };
 
   useEffect(() => {
-    if (contact) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(contact));
+    if (contacts) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
     }
-  }, [contact]);
+  }, [contacts]);
 
-  const contactsCount = contact.length;
   const filterList = checkSameContact();
 
   return (
@@ -77,7 +77,7 @@ export const App = () => {
         styles={{ title: 'contact-title', container: 'second-container' }}
       >
         <Filter value={filterQuery} filterContacts={filterContacts} />
-        {contactsCount ? (
+        {contacts && contacts.length ? (
           <ContactList filterList={filterList} onRemoveItem={onRemoveContact} />
         ) : (
           <Notification message="Phonebook is empty" />
